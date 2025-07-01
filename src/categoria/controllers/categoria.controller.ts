@@ -9,6 +9,7 @@ import {
   HttpStatus,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Put,
 } from '@nestjs/common';
@@ -37,6 +38,18 @@ export class CategoriaController {
     return this.categoriaService.findAllByDescricao(descricao);
   }
 
+  @Get('/nome/:nome')
+  @HttpCode(HttpStatus.OK)
+  findAllByNome(@Param('nome') nome: string): Promise<Categoria[]> {
+    return this.categoriaService.findAllByNome(nome);
+  }
+
+  @Get('/:id/contar-produtos')
+  @HttpCode(HttpStatus.OK)
+  contarProdutos(@Param('id', ParseIntPipe) id: number): Promise<number> {
+    return this.categoriaService.contarProdutosPorCategoria(id);
+  }
+
   @Post()
   @HttpCode(HttpStatus.CREATED)
   create(@Body() categoria: Categoria): Promise<Categoria> {
@@ -47,6 +60,15 @@ export class CategoriaController {
   @HttpCode(HttpStatus.OK)
   update(@Body() categoria: Categoria): Promise<Categoria> {
     return this.categoriaService.update(categoria);
+  }
+
+  @Patch('/:id/descricao')
+  @HttpCode(HttpStatus.OK)
+  updateDescricao(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('descricao') novaDescricao: string,
+  ): Promise<Categoria> {
+    return this.categoriaService.updateDescricao(id, novaDescricao);
   }
 
   @Delete('/:id')

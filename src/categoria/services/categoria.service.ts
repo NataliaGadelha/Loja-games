@@ -48,6 +48,32 @@ export class CategoriaService {
     });
   }
 
+  async findAllByNome(nome: string): Promise<Categoria[]> {
+    return await this.categoriaRepository.find({
+      where: { nome: ILike(`%${nome}%`) },
+      relations: { produtos: true },
+    });
+  }
+
+  async updateDescricao(id: number, novaDescricao: string): Promise<Categoria> {
+    const categoria = await this.findById(id);
+
+    if (!novaDescricao || novaDescricao.trim() === '') {
+      throw new HttpException(
+        'Descrição não pode ser vazia!',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    categoria.descricao = novaDescricao.trim();
+    return await this.categoriaRepository.save(categoria);
+  }
+
+  async contarProdutosPorCategoria(id: number): Promise<number> {
+    const categoria = await this.findById(id);
+    return categoria.produtos?.length || 0;
+  }
+
   async create(Categoria: Categoria): Promise<Categoria> {
     return await this.categoriaRepository.save(Categoria);
   }
