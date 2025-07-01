@@ -47,6 +47,39 @@ export class ProdutoService {
     });
   }
 
+  async aplicarDesconto(id: number, percentual: number): Promise<Produto> {
+    const produto = await this.findById(id);
+
+    if (percentual < 0 || percentual > 100) {
+      throw new HttpException(
+        'Percentual de desconto inválido',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    produto.preco = parseFloat(
+      (produto.preco * (1 - percentual / 100)).toFixed(2),
+    );
+    return await this.produtoRepository.save(produto);
+  }
+
+  async tornarIndisponivel(id: number): Promise<Produto> {
+    const produto = await this.findById(id);
+    produto.disponivel = false;
+    return await this.produtoRepository.save(produto);
+  }
+
+  async tornarDisponivel(id: number): Promise<Produto> {
+    const produto = await this.findById(id);
+    produto.disponivel = true;
+    return await this.produtoRepository.save(produto);
+  }
+
+  async descricaoResumida(id: number): Promise<string> {
+    const produto = await this.findById(id);
+    return `${produto.nome} - ${produto.plataforma} - ${produto.genero}`;
+  }
+
   async create(produto: Produto): Promise<Produto> {
     await this.categoriaService.findById(produto.categoria.id);
 
@@ -64,6 +97,6 @@ export class ProdutoService {
   async delete(id: number): Promise<DeleteResult> {
     await this.findById(id);
 
-    return await this.produtoRepository.delete(id); // Deleta a postagem do banco
+    return await this.produtoRepository.delete(id);
   }
 }
